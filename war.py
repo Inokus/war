@@ -1,12 +1,13 @@
 import random
 
+
 class Card:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
 
     def __str__(self):
-        return f"{self.rank} of {self.suit}"
+        return f"{self.rank}{self.suit}"
 
 
 class Deck:
@@ -21,7 +22,7 @@ class Deck:
     # Might not need this
     @classmethod
     def get_deck(cls):
-        return cls.deck
+        return cls.deck1
 
     @classmethod
     def shuffle(cls):
@@ -101,8 +102,14 @@ class Game:
 
 
     def play(self):
+        mode = "step_by_step"
+
         while self.player1_card_count > 0 and self.player2_card_count > 0:
             current_index = 0
+            if mode == "step_by_step":
+                user_input = input()
+                if user_input:
+                    mode = "conitinous"
             while True:
                 comparison_evaluation = self.compare_cards(
                     self.player1.cards[current_index], self.player2.cards[current_index]
@@ -133,15 +140,27 @@ class Game:
             return f"{self.player1.name} wins!"
 
 
+def get_names():
+    player1_name = input("Enter player1 name: ")
+    player2_name = input("Enter player2 name: ")
+    if player1_name == "":
+        player1_name = "Josh"
+    if player2_name == "":
+        player2_name = "Alice"
+    return player1_name, player2_name
+
+
 def main():
+    player1_name, player2_name = get_names()
+
     # Initialize the deck and shuffle it
     deck = Deck()
     deck.shuffle()
 
     # Split shuffled deck in two and assign cards to both players
     half1, half2 = deck.split_in_half()
-    player1 = Player("Josh", half1)
-    player2 = Player("Alice", half2)
+    player1 = Player(player1_name, half1)
+    player2 = Player(player2_name, half2)
 
     game = Game(player1, player2)
     print(game.play())
