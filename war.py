@@ -65,7 +65,7 @@ class Game:
         self.player2_card_count = len(self.player2.cards)
 
     def compare_cards(self, card1, card2):
-        print(f"{card1} vs {card2}")
+        # print(f"{card1} vs {card2}")
 
         if self.card_values[card1.rank] > self.card_values[card2.rank]:
             return 1
@@ -83,6 +83,23 @@ class Game:
         )
         losing_player.cards = losing_player.cards[index + 1 :]
 
+
+    def print_board(self, idx):
+        print(f"{self.player1.name} | {self.player1_card_count} | ", end="")
+        for i in range(idx + 1):
+            if i % 2 == 0:
+                print(f"{self.player1.cards[i]}", end="")
+            else:
+                print("##", end="")
+        print(" vs ", end="")
+        for i in range(idx, -1, -1):
+            if i % 2 == 0:
+                print(f"{self.player2.cards[i]}", end="")
+            else:
+                print("##", end="")
+        print(f" | {self.player2_card_count} | {self.player2.name}")
+
+
     def play(self):
         while self.player1_card_count > 0 and self.player2_card_count > 0:
             current_index = 0
@@ -90,6 +107,7 @@ class Game:
                 comparison_evaluation = self.compare_cards(
                     self.player1.cards[current_index], self.player2.cards[current_index]
                 )
+                self.print_board(current_index)
                 # Add and subtract from player_card_counts
                 if comparison_evaluation == 1:
                     self.take_cards(self.player1, self.player2, current_index)
