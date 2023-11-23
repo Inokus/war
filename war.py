@@ -19,11 +19,6 @@ class Deck:
         for rank in ranks:
             deck.append(Card(suit, rank))
 
-    # Might not need this
-    @classmethod
-    def get_deck(cls):
-        return cls.deck1
-
     @classmethod
     def shuffle(cls):
         random.shuffle(cls.deck)
@@ -66,8 +61,6 @@ class Game:
         self.player2_card_count = len(self.player2.cards)
 
     def compare_cards(self, card1, card2):
-        # print(f"{card1} vs {card2}")
-
         if self.card_values[card1.rank] > self.card_values[card2.rank]:
             return 1
         elif self.card_values[card1.rank] < self.card_values[card2.rank]:
@@ -75,7 +68,6 @@ class Game:
         else:
             return 0
 
-    # Should we shuffle cards? Whose cards goes first if not?
     def take_cards(self, winning_player, losing_player, index):
         winning_player.cards = (
             winning_player.cards[index + 1 :]
@@ -84,9 +76,12 @@ class Game:
         )
         losing_player.cards = losing_player.cards[index + 1 :]
 
-
     def print_board(self, idx):
-        print(f"{self.player1.name} | {self.player1_card_count} | ", end="")
+        print("--------------------")
+        if self.player1_card_count > 1:
+            print(f"{self.player1.name} has {self.player1_card_count} cards")
+        else:
+            print(f"{self.player1.name} has {self.player1_card_count} card")
         for i in range(idx + 1):
             if i % 2 == 0:
                 print(f"{self.player1.cards[i]}", end="")
@@ -98,46 +93,67 @@ class Game:
                 print(f"{self.player2.cards[i]}", end="")
             else:
                 print("##", end="")
-        print(f" | {self.player2_card_count} | {self.player2.name}")
-
+        print()
+        if self.player2_card_count > 1:
+            print(f"{self.player2.name} has {self.player2_card_count} cards")
+        else:
+            print(f"{self.player2.name} has {self.player2_card_count} card")
+        print("--------------------")
 
     def play(self):
-        mode = "step_by_step"
-
+        print(
+            'Type "f" or "forward" at any time if you want the game to play out on it\'s own, any other input will progress one round at a time'
+        )
+        # Variable that checks if user want to play out one round at a time
+        step_by_step = True
         while self.player1_card_count > 0 and self.player2_card_count > 0:
             current_index = 0
-            if mode == "step_by_step":
-                user_input = input()
-                if user_input:
-                    mode = "conitinous"
+            if step_by_step:
+                user_input = input().strip().lower()
+                if user_input in ["f", "forward"]:
+                    step_by_step = False
             while True:
                 comparison_evaluation = self.compare_cards(
                     self.player1.cards[current_index], self.player2.cards[current_index]
                 )
                 self.print_board(current_index)
-                # Add and subtract from player_card_counts
+                # Add and remove cards
                 if comparison_evaluation == 1:
+                    print(f"{self.player1.name} wins the round")
                     self.take_cards(self.player1, self.player2, current_index)
                     self.player1_card_count += current_index + 1
                     self.player2_card_count -= current_index + 1
                     break
                 elif comparison_evaluation == -1:
+                    print(f"{self.player2.name} wins the round")
                     self.take_cards(self.player2, self.player1, current_index)
                     self.player2_card_count += current_index + 1
                     self.player1_card_count -= current_index + 1
                     break
                 else:
-                    # Need to check if both sides has enough cards left to go to war
+                    # If war is declared increase index by 2, since one card gets skipped
                     current_index += 2
+                    print("War!")
+                    # Check if both sides has enough cards left to go to war
                     if self.player1_card_count < current_index + 1:
-                        return f"{self.player2.name} wins!"
+                        print(
+                            f"{self.player1.name} doesn't have enough cards to go to war..."
+                        )
+                        return print(f"{self.player2.name} won the game!")
                     elif self.player2_card_count < current_index + 1:
-                        return f"{self.player1.name} wins!"
+                        print(
+                            f"{self.player2.name} doesn't have enough cards to go to war..."
+                        )
+                        return print(f"{self.player1.name} won the game!")
+                    if step_by_step:
+                        user_input = input().strip().lower()
+                        if user_input in ["f", "forward"]:
+                            step_by_step = False
 
         if self.player1_card_count == 0:
-            return f"{self.player2.name} wins!"
+            return print(f"{self.player2.name} won the game!")
         else:
-            return f"{self.player1.name} wins!"
+            return print(f"{self.player1.name} won the game!")
 
 
 def get_names():
@@ -163,7 +179,7 @@ def main():
     player2 = Player(player2_name, half2)
 
     game = Game(player1, player2)
-    print(game.play())
+    game.play()
 
 
 if __name__ == "__main__":
